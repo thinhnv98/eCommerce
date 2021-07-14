@@ -1,0 +1,39 @@
+version: '1.0'
+
+services:
+  e-commerce-postgres-db:
+    container_name: e-commerce-postgres-db
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./databaseinit:/docker-entrypoint-initdb.d
+    ports:
+      - "54321:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=ecommerce
+    networks:
+      - e-commerce-network
+
+  e-commerce-api:
+    container_name: e-commerce-api
+    restart: unless-stopped
+    image: e-commerce-api-image:latest
+    volumes:
+      - ./.:/usr/src/app/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - e-commerce-postgres-db
+    networks:
+      - e-commerce-network
+
+volumes:
+  postgresdata:
+  databaseinit:
+  e-commerce-api:
+
+networks:
+  e-commerce-network:
+    driver: bridge
